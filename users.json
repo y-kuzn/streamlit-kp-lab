@@ -1,0 +1,21 @@
+{
+  "zhkafake": {
+    "password_hash": "dd7d25bd934deb44d5050811ad829d714580e6ef0c9af6dd8c6229bfe272b3d9",
+    "email": "",
+    "created_at": "2025-09-24T15:40:03.170720",
+    "is_admin": false,
+    "profile": {
+      "topics": [],
+      "authors": [],
+      "journals": [],
+      "zotero_key": "",
+      "zotero_id": "",
+      "zotero_collection": "",
+      "search_preferences": {
+        "default_source": "Semantic Scholar",
+        "max_results": 20,
+        "min_score": 2
+      }
+    }
+  }
+}
