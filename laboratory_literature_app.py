@@ -21,12 +21,12 @@ import requests
 # ============================
 
 
-SEMANTIC_SCHOLAR_API_KEY = [SEMANTIC_SCHOLAR_API_KEY]
+SEMANTIC_SCHOLAR_API_KEY = st.secrets[SEMANTIC_SCHOLAR_API_KEY]
 
 # OpenAI API Key
-OPENAI_API_KEY = [OPENAI_API_KEY]
-NCBI_EMAIL = [NCBI_EMAIL]
-NCBI_API_KEY = [NCBI_API_KEY]
+OPENAI_API_KEY = st.secrets[OPENAI_API_KEY]
+NCBI_EMAIL = st.secrets[NCBI_EMAIL]
+NCBI_API_KEY = st.secrets[NCBI_API_KEY]
 
 # Initialize OpenAI client with error handling
 openai_client = None
@@ -3612,6 +3612,7 @@ def check_zotero_ref_via_search(title, group_id):
         
     except Exception:
         return False  # If search fails, assume not present
+
 
 
 
