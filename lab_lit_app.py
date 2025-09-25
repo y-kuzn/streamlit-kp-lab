@@ -596,7 +596,7 @@ def smart_tag_processing(proposed_tags, zot=None):
 
 def what_is_requested(text_list):
     """
-    GPT-4o classification of research query type
+    gpt-5-mini classification of research query type
     Returns: (classification_integers, classification_texts)
     """
     try:
@@ -624,7 +624,7 @@ def what_is_requested(text_list):
             return [1], ["general research"]
             
         response = openai_client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-5-mini",
             messages=[
                 {"role": "user", "content": prompt}
             ],
@@ -708,7 +708,7 @@ def construct_pubmed_query(text, classified_as_int):
             return text.replace(" ", " AND ")
             
         response = openai_client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-5-mini",
             messages=[
                 {"role": "user", "content": prompt}
             ],
@@ -793,7 +793,7 @@ def remotexs_links(doi):
 
 def rate_publication(metadata, classification_switch):
     """
-    Rate publication using GPT-4o based on research area and user preferences
+    Rate publication using gpt-5-mini based on research area and user preferences
     Returns formatted rating string with score, keywords, and notes
     """
     try:
@@ -897,7 +897,7 @@ def rate_publication(metadata, classification_switch):
             return "Score: 1\nTags: [unrated]\nNote: OpenAI API not available"
             
         response = openai_client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-5-mini",
             messages=[
                 {"role": "user", "content": prompt}
             ],
@@ -912,7 +912,7 @@ def rate_publication(metadata, classification_switch):
 
 def parse_gpt4_output(rating_text):
     """
-    Parse GPT-4o rating output into structured format
+    Parse gpt-5-mini rating output into structured format
     Returns: (score_int, keywords_list, note_text)
     """
     try:
@@ -1110,7 +1110,7 @@ def render_query_workflow():
         if st.button("🤖 Generate AI Query"):
             if user_input.strip():
                 with st.spinner("🧠 AI is analyzing your query and crafting optimized searches..."):
-                    # Step 1: GPT-4o classification
+                    # Step 1: gpt-5-mini classification
                     classi_int, classi_txt = what_is_requested([user_input])
                     classification = classi_int[0]
                     classification_text = classi_txt[0]
@@ -1693,7 +1693,7 @@ def clean_snippet(text: str) -> str:
 # ============================
 # OPENAI (Boolean, extraction, annotation)
 # ============================
-def openai_json(prompt: str, model: str = "gpt-4o") -> dict | list:
+def openai_json(prompt: str, model: str = "gpt-5-mini") -> dict | list:
     if not OPENAI_API_KEY or not openai_client:
         print("Warning: No valid OpenAI API key found - using fallback")
         return {}
@@ -3239,7 +3239,7 @@ if execute_search:
                 if snippet:
                     st.markdown(f"**Abstract (source):** {snippet}")
 
-                # Enhanced AI annotation with professor's GPT-4o rating system
+                # Enhanced AI annotation with professor's gpt-5-mini rating system
                 
                 # Determine user query context  
                 if search_mode == 'Keyword Search':
@@ -3255,7 +3255,7 @@ if execute_search:
                     
                     # Use professor's rating system if we have the classification
                     if query_classification and hasattr(st.session_state, 'query_classification'):
-                        # Removed: st.info("🧠 Using Professor's Enhanced GPT-4o Rating System")
+                        # Removed: st.info("🧠 Using Professor's Enhanced gpt-5-mini Rating System")
                         
                         # Create metadata dict in professor's format
                         prof_metadata = {
@@ -3445,7 +3445,7 @@ def is_admin():
 
 def what_is_requested(text_list):
     """
-    Classify input text using GPT-4o to determine search intent.
+    Classify input text using gpt-5-mini to determine search intent.
     Returns: (classification_int, classification_text)
     1 = topic/keyword search, 2 = evolution research, 3 = chemistry research, 4 = PMIDs
     """
@@ -3476,7 +3476,7 @@ def what_is_requested(text_list):
             return [1], ["General topic search"]
             
         response = openai_client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-5-mini",
             messages=[
                 {"role": "user", "content": prompt}
             ],
@@ -3612,4 +3612,5 @@ def check_zotero_ref_via_search(title, group_id):
         
     except Exception:
         return False  # If search fails, assume not present
+
 
