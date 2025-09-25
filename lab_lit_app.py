@@ -21,13 +21,12 @@ import requests
 # ============================
 
 
-SEMANTIC_SCHOLAR_API_KEY = "TSMTWf9RIV339uerV5E7LaykV4pDJKdK3HWzes8i"
+SEMANTIC_SCHOLAR_API_KEY = st.secrets[SEMANTIC_SCHOLAR_API_KEY]
 
 # OpenAI API Key
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY") or "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"
-
-NCBI_EMAIL = "zhkafake@icloud.com"
-NCBI_API_KEY = "eebe1a647f771d298da57beec0610513ec08"
+OPENAI_API_KEY = st.secrets[OPENAI_API_KEY]
+NCBI_EMAIL = st.secrets[NCBI_EMAIL]
+NCBI_API_KEY =st.secrets[NCBI_API_KEY]
 
 # Initialize OpenAI client with error handling
 openai_client = None
@@ -3613,3 +3612,4 @@ def check_zotero_ref_via_search(title, group_id):
         
     except Exception:
         return False  # If search fails, assume not present
+
