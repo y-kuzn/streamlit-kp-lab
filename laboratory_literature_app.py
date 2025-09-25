@@ -628,7 +628,6 @@ def what_is_requested(text_list):
             messages=[
                 {"role": "user", "content": prompt}
             ],
-            max_completion_tokens=200,
             temperature=0.3
         )
         
@@ -3612,6 +3611,7 @@ def check_zotero_ref_via_search(title, group_id):
         
     except Exception:
         return False  # If search fails, assume not present
+
 
 
 
