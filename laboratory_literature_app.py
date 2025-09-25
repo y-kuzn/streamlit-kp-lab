@@ -34,26 +34,27 @@ OPENAI_ENABLED = False
 
 if OPENAI_API_KEY and OPENAI_API_KEY != "REPLACE_WITH_YOUR_OPENAI_API_KEY":
     try:
-        # Only pass api_key, do NOT pass proxies or other unsupported args
         openai_client = OpenAI(api_key=OPENAI_API_KEY)
         # Quick test of the API key
+        import requests
         test_response = requests.get(
             'https://api.openai.com/v1/models',
             headers={'Authorization': f'Bearer {OPENAI_API_KEY}'},
             timeout=5
         )
         if test_response.status_code == 200:
+            print("✅ OpenAI API key is valid - AI features enabled")
             OPENAI_ENABLED = True
         else:
-            st.error(f"⚠️ OpenAI API key is invalid (Status: {test_response.status_code})")
-            st.info("📝 Please update OPENAI_API_KEY with a valid key from https://platform.openai.com/account/api-keys")
+            print(f"⚠️ OpenAI API key is invalid (Status: {test_response.status_code})")
+            print("📝 Please update OPENAI_API_KEY with a valid key from https://platform.openai.com/account/api-keys")
             openai_client = None
     except Exception as e:
-        st.error(f"⚠️ OpenAI initialization failed: {e}")
+        print(f"⚠️ OpenAI initialization failed: {e}")
         openai_client = None
 else:
-    st.info("📝 Please set OPENAI_API_KEY to enable AI features")
-    st.info("   Get your API key from: https://platform.openai.com/account/api-keys")
+    print("📝 Please set OPENAI_API_KEY to enable AI features")
+    print("   Get your API key from: https://platform.openai.com/account/api-keys")
 
 SLEEP = 0.08  # pacing for retries/backoff
 USERS_FILE = "users.json"
@@ -368,37 +369,8 @@ if not st.session_state.logged_in:
     render_login_signup()
     st.stop()
 
-
-
-SLEEP = 0.08  # pacing for retries/backoff
-USERS_FILE = "users.json"
-ADMIN_KEYWORD = "AmyloNMRCryo42!"
-
-# ============================
-### --- streamlit-authenticator will handle authentication and user management --- ###
-
-# ============================
-### --- Session state will be managed by streamlit-authenticator --- ###
-
-# ============================
-### --- Login/signup UI will be handled by streamlit-authenticator --- ###
-
-### --- Admin check will be handled by streamlit-authenticator roles or config --- ###
-
-### --- Admin panel will be re-implemented if needed using streamlit-authenticator roles --- ###
-
-### --- User profile UI will be re-implemented after authenticator integration --- ###
-
-# ============================
-# COMPATIBILITY FUNCTIONS (for existing code)
-# ============================
-### --- User preferences will be handled after authenticator integration --- ###
-
-# ============================
-# UI
-# ============================
-
-### --- Authenticator login UI and main app interface will be added next --- ###
+# Main app interface (only shown when logged in)
+render_user_profile()
 
 st.title("📚 AI Literature Helper")
 
@@ -596,7 +568,7 @@ def smart_tag_processing(proposed_tags, zot=None):
 
 def what_is_requested(text_list):
     """
-    gpt-5-mini classification of research query type
+    GPT-5-mini classification of research query type
     Returns: (classification_integers, classification_texts)
     """
     try:
@@ -627,7 +599,7 @@ def what_is_requested(text_list):
             model="gpt-5-mini",
             messages=[
                 {"role": "user", "content": prompt}
-            ],
+            ]
         )
         
         result_text = response.choices[0].message.content.strip()
@@ -709,8 +681,7 @@ def construct_pubmed_query(text, classified_as_int):
             model="gpt-5-mini",
             messages=[
                 {"role": "user", "content": prompt}
-            ],
-            temperature=0.3
+            ]
         )
         
         return response.choices[0].message.content.strip()
@@ -791,7 +762,7 @@ def remotexs_links(doi):
 
 def rate_publication(metadata, classification_switch):
     """
-    Rate publication using gpt-5-mini based on research area and user preferences
+    Rate publication using GPT-5-mini based on research area and user preferences
     Returns formatted rating string with score, keywords, and notes
     """
     try:
@@ -898,8 +869,7 @@ def rate_publication(metadata, classification_switch):
             model="gpt-5-mini",
             messages=[
                 {"role": "user", "content": prompt}
-            ],
-            temperature=0.3
+            ]
         )
         
         return response.choices[0].message.content.strip()
@@ -910,7 +880,7 @@ def rate_publication(metadata, classification_switch):
 
 def parse_gpt4_output(rating_text):
     """
-    Parse gpt-5-mini rating output into structured format
+    Parse GPT-5-mini rating output into structured format
     Returns: (score_int, keywords_list, note_text)
     """
     try:
@@ -1027,7 +997,8 @@ def generate_pubmed_query_prompt(user_query: str, date_clause: str) -> str:
         "4. Combine all concept groups with AND.\n"
         "5. Use best practices for PubMed: avoid stopwords, use quotes for phrases, parentheses for grouping, and do not include extraneous words.\n"
         "6. If a date range is provided, add it as year:[YYYY TO YYYY] at the end.\n"
-        "Return a JSON object: {\"boolean_query\": \"...\", \"keywords\": [list of all terms used], \"year_from\": null, \"year_to\": null}\n"
+        "CRITICAL: Respond with ONLY valid JSON. No additional text or explanations.\n"
+        "Required JSON format: {\"boolean_query\": \"your query here\", \"keywords\": [\"keyword1\", \"keyword2\"], \"year_from\": null, \"year_to\": null}\n"
         f"User topic: {user_query}\n"
     )
     if date_clause:
@@ -1053,7 +1024,8 @@ def generate_semantic_scholar_query_prompt(user_query: str, date_clause: str) ->
         "- 'amyloid fibril protein aggregation'\n"
         "- 'transformer attention mechanism NLP'\n"
         "- 'quantum computing algorithms optimization'\n"
-        "Return a JSON object: {\"boolean_query\": \"...\", \"keywords\": [list of key terms used], \"year_from\": null, \"year_to\": null}\n"
+        "CRITICAL: Respond with ONLY valid JSON. No additional text or explanations.\n"
+        "Required JSON format: {\"boolean_query\": \"your query here\", \"keywords\": [\"keyword1\", \"keyword2\"], \"year_from\": null, \"year_to\": null}\n"
         f"User topic: {user_query}\n"
     )
     if date_clause:
@@ -1108,7 +1080,7 @@ def render_query_workflow():
         if st.button("🤖 Generate AI Query"):
             if user_input.strip():
                 with st.spinner("🧠 AI is analyzing your query and crafting optimized searches..."):
-                    # Step 1: gpt-5-mini classification
+                    # Step 1: GPT-5-mini classification
                     classi_int, classi_txt = what_is_requested([user_input])
                     classification = classi_int[0]
                     classification_text = classi_txt[0]
@@ -1700,8 +1672,7 @@ def openai_json(prompt: str, model: str = "gpt-5-mini") -> dict | list:
             model=model,
             messages=[
                 {"role": "user", "content": prompt}
-            ],
-            temperature=0.3
+            ]
         )
         txt = resp.choices[0].message.content or ""
         if not txt:
@@ -1711,9 +1682,24 @@ def openai_json(prompt: str, model: str = "gpt-5-mini") -> dict | list:
             return json.loads(txt)
         except Exception as e:
             print(f"JSON parse error: {e}, trying regex extraction")
+            # Try to extract JSON from the response
             m = re.search(r"\{[\s\S]*\}|\[[\s\S]*\]", txt)
             if m:
-                return json.loads(m.group(0))
+                try:
+                    return json.loads(m.group(0))
+                except Exception as e2:
+                    print(f"Regex extraction also failed: {e2}")
+                    # Try to clean common JSON issues
+                    clean_json = m.group(0)
+                    # Fix common issues: trailing commas, missing quotes, etc.
+                    clean_json = re.sub(r',\s*}', '}', clean_json)  # Remove trailing comma before }
+                    clean_json = re.sub(r',\s*]', ']', clean_json)  # Remove trailing comma before ]
+                    try:
+                        return json.loads(clean_json)
+                    except Exception as e3:
+                        print(f"JSON cleaning failed: {e3}")
+                        print(f"Raw response: {txt[:500]}...")
+                        return {}
             else:
                 print(f"No JSON found in response: {txt[:200]}...")
                 return {}
@@ -1724,9 +1710,16 @@ def openai_json(prompt: str, model: str = "gpt-5-mini") -> dict | list:
 def openai_boolean_query(user_query: str) -> dict:
     data = openai_json(f"""
 Create a compact Boolean query (use AND/OR/NOT and quotes for phrases) suitable for academic APIs.
-Return JSON {{"boolean_query": "...", "keywords": [], "year_from": null, "year_to": null}}
+
+CRITICAL: Respond with ONLY valid JSON. No additional text, explanations, or formatting.
+
+Required JSON format:
+{{"boolean_query": "your query here", "keywords": ["keyword1", "keyword2"], "year_from": null, "year_to": null}}
+
 Topic: {user_query}
 Priority topics: {prefs.get('topics')}
+
+Remember: ONLY return the JSON object, nothing else.
 """)
     out = {"boolean_query": "", "keywords": [], "year_from": None, "year_to": None}
     if isinstance(data, dict):
@@ -1862,7 +1855,11 @@ CRITICAL SCORING INSTRUCTIONS:
 5. Score 0 if paper has NO relevance to user's topics
 6. Ignore general academic prestige if it doesn't match user's interests
 
-CRITICAL: Respond ONLY in English. Output JSON only.
+CRITICAL: Respond with ONLY valid JSON. No additional text, explanations, or formatting.
+Required JSON format:
+{{"abstract": "your abstract here", "tags": ["tag1", "tag2", "tag3"], "score3": 2}}
+
+Output ONLY the JSON object, nothing else.
 """
     data = openai_json(prompt)
     abstract, tags, score3_val = "", [], 0
@@ -3237,7 +3234,7 @@ if execute_search:
                 if snippet:
                     st.markdown(f"**Abstract (source):** {snippet}")
 
-                # Enhanced AI annotation with professor's gpt-5-mini rating system
+                # Enhanced AI annotation with professor's GPT-5-mini rating system
                 
                 # Determine user query context  
                 if search_mode == 'Keyword Search':
@@ -3253,7 +3250,7 @@ if execute_search:
                     
                     # Use professor's rating system if we have the classification
                     if query_classification and hasattr(st.session_state, 'query_classification'):
-                        # Removed: st.info("🧠 Using Professor's Enhanced gpt-5-mini Rating System")
+                        # Removed: st.info("🧠 Using Professor's Enhanced GPT-5-mini Rating System")
                         
                         # Create metadata dict in professor's format
                         prof_metadata = {
@@ -3443,7 +3440,7 @@ def is_admin():
 
 def what_is_requested(text_list):
     """
-    Classify input text using gpt-5-mini to determine search intent.
+    Classify input text using GPT-5-mini to determine search intent.
     Returns: (classification_int, classification_text)
     1 = topic/keyword search, 2 = evolution research, 3 = chemistry research, 4 = PMIDs
     """
@@ -3477,8 +3474,7 @@ def what_is_requested(text_list):
             model="gpt-5-mini",
             messages=[
                 {"role": "user", "content": prompt}
-            ],
-            temperature=0.3
+            ]
         )
         
         result_text = response.choices[0].message.content.strip()
@@ -3610,11 +3606,4 @@ def check_zotero_ref_via_search(title, group_id):
         
     except Exception:
         return False  # If search fails, assume not present
-
-
-
-
-
-
-
 
